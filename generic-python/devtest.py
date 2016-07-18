@@ -135,10 +135,5 @@ class IsPalindrome:
     exclude_characters = string.punctuation + ' '
 
     def __call__(self, word):
-        word = word.lower()
-        if len(word) <= 1:
-            return True
-        elif word[0] != word[-1]:
-            return False
-        else:
-            return self.__call__(word[1:-1].strip(self.exclude_characters))
+        sanitized_word = ''.join([i.lower() for i in word if i not in self.exclude_characters])
+        return sanitized_word == sanitized_word[::-1]
