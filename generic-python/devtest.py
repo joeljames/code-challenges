@@ -87,32 +87,38 @@ class Solutions:
         return IsPalindrome()
 
     def string_parse(self, data):
-        # Each row in the data string is separated by `+-------`
-        row_sep_pattern = r'\+-+'
+        # Each row in the data string is separated by `+----+---\n`
+        row_sep_pattern = r'\+-*\+-*\+\n?'
         # The data with in the row pattern
         # eg: | Simple design  | Over-engineering  |
         row_data_pattern = r'[|][\s]?([A-Za-z0-9-_,".\?\'\s]+)'
-        # Split the data string and capture each row
-        rows = [value for value in re.split(row_sep_pattern, data) if value.startswith('+\n|')]
-        # The first row is the header,
-        # slice the rows to remove header
-        rows = rows[1:]
+        rows = re.split(row_sep_pattern, data)
+        match_count = 0
         parsed_output = []
         for row in rows:
-            # A row could have multiple lines,
-            # so split the row by new line char
-            row_output = []
-            for line in row.split('\n'):
-                match = re.findall(row_data_pattern, line)
-                if match:
-                    if not row_output:
-                        row_output = [value.strip() for value in match]
-                    else:
-                        for index, value in enumerate(match):
-                            value = value.strip()
-                            if value:
-                                row_output[index] += unicode(' ' + value)
-            parsed_output.append(tuple(row_output))
+            match = re.findall(row_data_pattern, row)
+            if match:
+                # Ignore the header and the blank lines
+                # before and after the table.
+                if match_count > 0:
+                    left_str, right_str = '', ''
+                    line_count = 0
+                    # row can have multiple lines
+                    for line in match:
+                        if line != '\n':
+                            if (line_count % 2) == 0:
+                                if not left_str:
+                                    left_str += line.strip()
+                                else:
+                                    left_str += ' ' + line.strip()
+                            else:
+                                if not right_str:
+                                    right_str += line.strip()
+                                else:
+                                    right_str += ' ' + line.strip()
+                            line_count += 1
+                    parsed_output.append((left_str.strip(), right_str.strip()))
+                match_count += 1
         return parsed_output
 
     def _assert_list(self, data_list):
